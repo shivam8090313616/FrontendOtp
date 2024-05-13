@@ -1,0 +1,59 @@
+
+.main{
+
+    box-sizing: border-box;
+    border-radius: 15px;
+    box-shadow: 0px 0px 5px 0px gray;
+    min-height: 400px;
+}
+.rightCss {
+    background: linear-gradient(to bottom, #621717, #C04F4F);
+    color: white;
+    min-height: 400px;
+    padding-top: 30px;
+    text-align: justify;
+    border-radius: 0px 15px 15px 0px;
+    box-sizing: border-box;
+}
+.TextStyle{
+    color: rgb(211, 205, 205);
+}
+.TextStyleHead{
+    color: rgb(83, 80, 80);
+    box-sizing: border-box;
+}
+
+
+.leftCss {
+    box-sizing: border-box;
+    border-radius: 15px 0px 0px 15px;
+    box-shadow: 0px 0px 5px 0px gray;
+    min-height: 400px;
+}
+
+.modal {
+    padding-top: 10%;
+    background-color: transparent;
+    backdrop-filter: blur(3px);
+}
+#btn_cross{
+    position: relative;
+    left:400px;
+    border-radius: 50%;
+    background-color: white;
+    color: black;
+    font-weight: bold;
+    top: -20px;
+}
+#img{
+    padding: 20px;
+    background-color: #C04F4F;
+    border-radius: 20px;
+    color: white;
+}
+
+
+
+
+
+
