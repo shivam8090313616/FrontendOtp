@@ -53,6 +53,30 @@
 }
 
 
+.step-indicator {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    
+}
+.point{
+    position: relative;
+    top:-20px;
+}
+.step-item {
+    font-weight: bold;
+    color: #ccc;
+}
+.active-step {
+    color: #c70919;
+}
+
+.custom-border {
+    border-width: 5px;
+    border-style: solid;
+    border-color: #28a745; /* Green border color (success) */
+    outline: 2px solid #28a745; /* Green outline (success) */
+  }
 
 
 

@@ -5,6 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image: url("https://img.freepik.com/premium-vector/dotted-world-map-white-background-vector-illustration_541075-471.jpg?size=626&ext=jpg&ga=GA1.1.867424154.1715644800&semt=ais_user");
+  background-size: cover;
 }
 
 code {
