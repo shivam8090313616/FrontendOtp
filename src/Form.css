@@ -68,7 +68,7 @@
     color: #ccc;
 }
 .active-step {
-    color: #c70919;
+    color: #b91321;
 }
 
 .custom-border {
@@ -77,6 +77,32 @@
     border-color: #28a745; /* Green border color (success) */
     outline: 2px solid #28a745; /* Green outline (success) */
   }
+
+  .point1, .point2, .point3{
+    z-index: 1;
+}
+
+.loader { 
+    display: none; 
+    border: 4px solid rgba(255, 255, 255, 0.3); 
+    border-top: 4px solid rgb(255, 255, 255); 
+    border-radius: 50%; 
+    width: 25px; 
+    height: 25px; 
+    animation: spin 1s linear infinite; 
+    margin-left: 10px; 
+} 
+  
+@keyframes spin { 
+    0% { 
+        transform: rotate(0deg); 
+    } 
+  
+    100% { 
+        transform: rotate(360deg); 
+    } 
+} 
+
 
 
 
