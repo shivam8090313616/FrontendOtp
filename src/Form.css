@@ -29,6 +29,7 @@
     border-radius: 15px 0px 0px 15px;
     box-shadow: 0px 0px 5px 0px gray;
     min-height: 400px;
+
 }
 
 .modal {
@@ -74,8 +75,8 @@
 .custom-border {
     border-width: 5px;
     border-style: solid;
-    border-color: #28a745; /* Green border color (success) */
-    outline: 2px solid #28a745; /* Green outline (success) */
+    border-color: #28a745; 
+    outline: 2px solid #28a745; 
   }
 
   .point1, .point2, .point3{
@@ -103,7 +104,61 @@
     } 
 } 
 
+#btnCreate{
+    border-radius: 49%;
+}
+#btnleftform2{
+    border-radius: 49%;
+}
+#btnrightform2{
+    border-radius: 49%;
+}
+#btnleftform3{
+    border-radius: 49%;
+}
 
 
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 2, 2, 0.5) rgba(255, 255, 255, 0.5);
+  }
+  
+  *::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 100, 100, 0.5);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0);
+  }
+  
+  .custom-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 100, 100, 0.5) rgba(255, 255, 255, 0.5);
+  }
+  
+  .custom-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .custom-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 100, 100, 0.5);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0);
+  }
+  
+
+  #mainContainer{
+    min-width: 500px;
+  }
 
 

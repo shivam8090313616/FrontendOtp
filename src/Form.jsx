@@ -1,23 +1,29 @@
 import "./Form.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import swal from "sweetalert";
+import { useNavigate } from "react-router-dom";
 import {
   faCheck,
   faCircle,
   faCircleExclamation,
+  faEye,
+  faEyeSlash,
   faLeftLong,
   faRightLong,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.css";
-import { faDiagramSuccessor } from "@fortawesome/free-solid-svg-icons/faDiagramSuccessor";
-
 const FormData = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showButton, setShowButton] = useState(false);
+  const ressendRef = useRef(null);
+  const timeOtpRef = useRef(null);
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,9 +31,9 @@ const FormData = () => {
   const [messenger, setMessenger] = useState("");
   const [password, setPassword] = useState("");
   const [submitBtn, setSubmit] = useState("Verify Email");
-  const [confirmpassword, setConfirmPassword] = useState("");
+  const [countdown, setCountdown] = useState(0);
   const [showResendButton, setShowResendButton] = useState(false);
-  const [countdown, setCountdown] = useState(30);
+  const [confirmpassword, setConfirmPassword] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const closeModal = () => {
@@ -71,8 +77,16 @@ const FormData = () => {
     height: "8px",
   };
 
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     let formIsValid = true;
     if (firstName.trim() === "") {
       setErrors((prevErrors) => ({
@@ -83,7 +97,7 @@ const FormData = () => {
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, firstName: "" }));
     }
-  
+
     if (lastName.trim() === "") {
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -93,8 +107,7 @@ const FormData = () => {
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, lastName: "" }));
     }
-  
-    
+
     if (email.trim() === "") {
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -104,32 +117,43 @@ const FormData = () => {
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, email: "" }));
     }
-  
     if (formIsValid) {
       try {
-
         document.querySelector("#btnSub").style.display = "none";
         document.querySelector("#loader").style.display = "block";
         document.querySelector("#btnPro").style.display = "block";
-  
+
         const data = {
           fname: firstName,
           lname: lastName,
           email: email,
         };
-  
-        const response = await axios.post("http://localhost:8000/api/send-otp", data);
+
+        const response = await axios.post(
+          "http://localhost:8000/api/send-otp",
+          data
+        );
+        startCountdown();
+
         toast.success("OTP sent successfully!");
         setIsOpen(true);
-        startCountdown();
-        setErrors((prevErrors) => ({ ...prevErrors, email: "", firstName: "", lastName: "" }));
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          email: "",
+          firstName: "",
+          lastName: "",
+        }));
         document.querySelector("#loader").style.display = "none";
         document.querySelector("#btnSub").style.display = "block";
         document.querySelector("#btnPro").style.display = "none";
       } catch (error) {
-        if (error.response && error.response.data && error.response.data.errors) {
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.errors
+        ) {
           const { errors } = error.response.data;
-  
+
           if (errors.fname) {
             setErrors((prevErrors) => ({
               ...prevErrors,
@@ -151,14 +175,13 @@ const FormData = () => {
         } else {
           console.log("Error sending OTP:", error);
         }
-  
+
         document.querySelector("#loader").style.display = "none";
         document.querySelector("#btnSub").style.display = "block";
         document.querySelector("#btnPro").style.display = "none";
       }
     }
   };
-  
 
   const handleOtpChange = (index, value) => {
     const newOtp = [...otp];
@@ -220,27 +243,34 @@ const FormData = () => {
       toast.success("Good job!", "You Are Verified", "success");
     } catch (error) {
       console.log(error.response.data.status);
-      document.querySelector("#otpError").innerHTML=error.response.data.status;
+      document.querySelector("#otpError").innerHTML =
+        error.response.data.status;
     }
   };
 
-  const startCountdown = () => {
-    const timer = setInterval(() => {
-      if (countdown > 1) {
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
         setCountdown((prevCountdown) => prevCountdown - 1);
-      } else {
-        clearInterval(timer);
-      }
-    }, 1000);
-    setTimeout(() => {
-      clearInterval(timer);
-      setShowResendButton(true);
-    }, 30000);
+      }, 1000);
+
+      return () => clearInterval(timer);
+    } else {
+      if (ressendRef.current) ressendRef.current.style.display = "block";
+      if (timeOtpRef.current) timeOtpRef.current.style.display = "none";
+    }
+  }, [countdown]);
+
+  const startCountdown = () => {
+    setCountdown(30);
   };
 
-  const startCountdownBtn = () => {
-    setCountdown(30);
+  const startCountdownBtn = async () => {
     startCountdown();
+
+    if (ressendRef.current) ressendRef.current.style.display = "none";
+    if (timeOtpRef.current) timeOtpRef.current.style.display = "block";
+
     const data = {
       fname: firstName,
       lname: lastName,
@@ -248,8 +278,11 @@ const FormData = () => {
     };
 
     try {
-      axios.post("http://localhost:8000/api/send-otp", data);
-      toast.success("OTP sent successfully!");
+      const response = await axios.post(
+        "http://localhost:8000/api/send-otp",
+        data
+      );
+      console.log("OTP sent successfully!");
     } catch (error) {
       console.error("Error sending OTP:", error);
       alert("Failed to send OTP. Please try again.");
@@ -274,42 +307,67 @@ const FormData = () => {
     point1.style.color = "red";
   };
 
-  const nextTab3 = (e) => {
+  const nextTab3 = async (e) => {
     e.preventDefault();
     if (mobile.trim() === "") {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        mobile: "mobile are required",
+        mobile: "Contact info Are Required",
       }));
       return;
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, mobile: "" }));
     }
-
     if (messenger.trim() === "") {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        messenger: "messenger id are required",
+        messenger: "Messenger Name Are Required",
       }));
       return;
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, messenger: "" }));
     }
 
-    const tab1 = document.querySelector(".tab1");
-    const tab2 = document.querySelector(".tab2");
-    const tab3 = document.querySelector(".tab3");
-    const point3 = document.querySelector(".point3");
-    const point1 = document.querySelector(".point1");
-    const point2 = document.querySelector(".point2");
-    const step3 = document.querySelector(".step3");
-    tab1.style.display = "none";
-    tab2.style.display = "none";
-    tab3.style.display = "block";
-    step3.classList.add("active-step");
-    point3.style.color = "green";
-    point1.style.color = "red";
-    point2.style.color = "red";
+    const data = {
+      mobile: mobile,
+    };
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/valContact",
+        data
+      );
+
+      setErrors((prevErrors) => ({ ...prevErrors, mobile: "", messenger: "" }));
+
+      const tab1 = document.querySelector(".tab1");
+      const tab2 = document.querySelector(".tab2");
+      const tab3 = document.querySelector(".tab3");
+      const point3 = document.querySelector(".point3");
+      const point1 = document.querySelector(".point1");
+      const point2 = document.querySelector(".point2");
+      const step3 = document.querySelector(".step3");
+      step3.classList.add("active-step");
+      tab1.style.display = "none";
+      tab2.style.display = "none";
+      tab3.style.display = "block";
+      point3.style.color = "green";
+      point1.style.color = "red";
+      point2.style.color = "red";
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        if (error.response.data.error) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            mobile: error.response.data.error,
+          }));
+        } else {
+          setErrors((prevErrors) => ({ ...prevErrors, mobile: "" }));
+        }
+      } else {
+        console.error("API request failed:", error);
+      }
+    }
   };
 
   const prevTab1 = (e) => {
@@ -317,7 +375,7 @@ const FormData = () => {
     if (mobile.trim() === "") {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        mobile: "mobile are required",
+        mobile: "Contact info are required",
       }));
       return;
     } else {
@@ -327,8 +385,9 @@ const FormData = () => {
     if (messenger.trim() === "") {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        messenger: "messenger id are required",
+        messenger: "Messenger Name Are Required",
       }));
+      return;
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, messenger: "" }));
     }
@@ -440,9 +499,9 @@ const FormData = () => {
       try {
         await axios.post("http://localhost:8000/api/dataSubmit", formData);
         toast.success("Account Created Successfully");
+        navigate("/thanks");
       } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to register. Please try again.");
+        toast.error(error.response.data.message.email[0]);
       }
     }
   };
@@ -579,21 +638,26 @@ const FormData = () => {
     setMessenger(value.trimStart());
   };
 
-  const handleChangePassword = (e) => {
-    let value = e.target.value.replace(/\s/g, "");
-    setPassword(value.slice(0, 8));
-  };
-
   const keyUp6 = () => {
     if (password.trim() === "") {
       setErrors((prevErrors) => ({
         ...prevErrors,
         password: "Password is required",
       }));
-    } else if (password.length < 6 || password.length > 8) {
+    } else if (password.length < 4 || password.length > 8) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        password: "Password must be 6-8 characters long",
+        password: "Password must be 4-8 characters long",
+      }));
+    } else if (!/\d/.test(password)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password: "Password must contain at least one number (0-9)",
+      }));
+    } else if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/.test(password)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password: "Password must contain at least one special character",
       }));
     } else {
       setErrors((prevErrors) => ({
@@ -603,9 +667,9 @@ const FormData = () => {
     }
   };
 
-  const handleChangeConfirmPassword = (e) => {
-    let value = e.target.value.replace(/\s/g, ""); // Remove spaces from input
-    setConfirmPassword(value.slice(0, 8)); // Limit to a maximum of 8 characters
+  const handleChangePassword = (e) => {
+    let value = e.target.value.replace(/\s/g, "");
+    setPassword(value.slice(0, 15));
   };
 
   const keyUp7 = () => {
@@ -620,6 +684,7 @@ const FormData = () => {
         confirmpassword: "Passwords do not match",
       }));
       const createAnAccount = document.querySelector("#createAnAccount");
+
       createAnAccount.style.background = "#C04F4F";
     } else {
       setErrors((prevErrors) => ({
@@ -631,11 +696,16 @@ const FormData = () => {
     }
   };
 
+  const handleChangeConfirmPassword = (e) => {
+    let value = e.target.value.replace(/\s/g, "");
+    setConfirmPassword(value.slice(0, 10));
+  };
+
   return (
     <div className="container">
       <div className="row justify-content-center align-items-center vh-100">
         <div className="col-sm-7 bg-light main" id="mainContainer">
-          <div className="row p-0">
+          <div className="row p-0" id="parent">
             <div className="col-sm-7 m-0 leftCss">
               <h5 className="px-2 pt-4 TextStyleHead">
                 Begin Your Advertising Journey
@@ -733,6 +803,7 @@ const FormData = () => {
                   <input
                     id="btnSub"
                     type="submit"
+                    ref={ressendRef}
                     onClick={handleSubmit}
                     className="form-control mt-4 mb-4 text-light"
                     style={{ background: "#C04F4F" }}
@@ -755,8 +826,8 @@ const FormData = () => {
                       <button
                         id="btnCreate"
                         onClick={nextTab2}
-                        className="btn   mt-4 text-light"
-                        style={{ display: "none", background: "#C04F4F" }}
+                        className="btn   mt-4 text-light nxtpre"
+                        style={{ display: "none", background: "#9B3939" }}
                       >
                         <FontAwesomeIcon icon={faRightLong} />
                       </button>
@@ -794,15 +865,17 @@ const FormData = () => {
                   )}
 
                   <div className="row">
-                    <div className="col-sm-12 d-flex justify-content-between">
+                    <div className="col-sm-12 d-flex justify-content-end">
                       <button
+                        id="btnleftform2"
                         style={{ background: "#C04F4F", color: "white" }}
                         onClick={prevTab1}
-                        className="btn mt-4 ms-2"
+                        className="btn mt-4 me-2 ms-2"
                       >
                         <FontAwesomeIcon icon={faLeftLong} />
                       </button>
                       <button
+                        id="btnrightform2"
                         style={{ background: "#C04F4F" }}
                         onClick={nextTab3}
                         className="btn   mt-4 me-2 text-light"
@@ -815,34 +888,62 @@ const FormData = () => {
 
                 {/* third Form */}
                 <div className="tab3" style={{ display: "none" }}>
-                  <input
-                    id="password"
-                    value={password}
-                    onKeyUp={keyUp6}
-                    onChange={handleChangePassword}
-                    placeholder="Enter password"
-                    className={`form-control border mt-2 border-dark ${
-                      errors.password && "is-invalid"
-                    }`}
-                  />
-                  {errors.password && (
-                    <div className="invalid-feedback">{errors.password}</div>
-                  )}
-                  <input
-                    id="confirmpassword"
-                    value={confirmpassword}
-                    onKeyUp={keyUp7}
-                    onChange={handleChangeConfirmPassword}
-                    placeholder="Last name"
-                    className={`form-control border border-dark mt-3 ${
-                      errors.confirmpassword && "is-invalid"
-                    }`}
-                  />
-                  {errors.confirmpassword && (
-                    <div className="invalid-feedback">
-                      {errors.confirmpassword}
+                  <div className="input-group mb-0 ">
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onKeyUp={keyUp6}
+                      onChange={handleChangePassword}
+                      placeholder="Enter password"
+                      className={`form-control border-secondary  mt-2 ${
+                        errors.password && "is-invalid"
+                      }`}
+                    />
+                    <div className="input-group-append mt-2 ">
+                      <span
+                        className="border border-secondary p-2 rounded-right"
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                      >
+                        {showPassword ? <FontAwesomeIcon icon={faEye} /> : <FontAwesomeIcon icon={faEyeSlash}/> }
+                      </span>
                     </div>
-                  )}
+                    {errors.confirmpassword && (
+                      <div className="invalid-feedback">
+                        {errors.confirmpassword}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group mt-3">
+                    <input
+                      id="confirmpassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmpassword}
+                      onKeyUp={keyUp7}
+                      onChange={handleChangeConfirmPassword}
+                      placeholder="Confirm password"
+                      className={`form-control border-secondary  mt-3 ${
+                        errors.confirmpassword && "is-invalid"
+                      }`}
+                    />
+                    <div className="input-group-append mt-3 border border-secondary rounded-right">
+                      <div
+                        className=" p-2"
+                        type="button"
+                        onClick={toggleConfirmPasswordVisibility}
+                      >
+                        {showConfirmPassword ? <FontAwesomeIcon icon={faEye} /> : <FontAwesomeIcon icon={faEyeSlash}/> }
+                      </div>
+                    </div>
+                    {errors.confirmpassword && (
+                      <div className="invalid-feedback">
+                        {errors.confirmpassword}
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     onClick={submitData}
                     id="createAnAccount"
@@ -852,8 +953,9 @@ const FormData = () => {
                     Create An Account
                   </button>
 
-                  <div className="d-flex justify-content-between mt-3">
+                  <div className="d-flex justify-content-end mt-3">
                     <button
+                      id="btnleftform3"
                       onClick={prevTab2}
                       className="btn "
                       style={{ background: "#C04F4F", color: "white" }}
@@ -890,16 +992,16 @@ const FormData = () => {
           <div className="row">
             <div className="col-sm-4 mx-auto">
               <div
-                className="modal-dialog modal-dialog-centered"
+                className="modal-dialog modal-dialog-centered mx-auto"
                 role="document"
-                style={{ maxWidth: "400px" }}
+                style={{ maxWidth: "400px", minWidth: "400px" }}
               >
                 <div className="modal-content">
                   <div className="row">
-                    <div className="col-sm-10">
+                    <div className="col-sm-12 d-flex justify-content-end">
                       <button
                         type="button"
-                        className="close btn btn-danger"
+                        className="close btn btn-light border border-2 text-danger border-danger m-1"
                         onClick={closeModal}
                       >
                         <FontAwesomeIcon icon={faTimes} />
@@ -964,9 +1066,13 @@ const FormData = () => {
                         </div>
                       </div>
                       <div className="row">
-                              <div className="col-sm-12 text-center">
-                              <span id="otpError" className="text-center text-danger" style={{"fontSize":"12px"}}></span>
-                              </div>
+                        <div className="col-sm-12 text-center">
+                          <span
+                            id="otpError"
+                            className="text-center text-danger"
+                            style={{ fontSize: "12px" }}
+                          ></span>
+                        </div>
                       </div>
                       <button
                         type="submit"
@@ -978,17 +1084,21 @@ const FormData = () => {
                       </button>
                       <div className="row">
                         <div className="col-sm-12 d-flex justify-content-end">
-                          {!showResendButton ? (
-                            <p style={counter}>Resend OTP in {countdown}s</p>
-                          ) : (
+                          <div ref={timeOtpRef} style={{ display: "none" }}>
+                            <p style={{ fontWeight: "bold", color: "red" }}>
+                              Resend OTP in {countdown}s
+                            </p>
+                          </div>
+                          <div ref={ressendRef} style={{ display: "block" }}>
                             <button
+                              style={{ fontSize: "13px" }}
                               type="button"
                               onClick={startCountdownBtn}
-                              className="btn btn-sm fw-bold text-danger"
+                              className="btn btn-sm px-1 py-1 mt-2 fw-bold btn-danger"
                             >
                               Resend OTP
                             </button>
-                          )}
+                          </div>
                         </div>
                       </div>
                     </form>
