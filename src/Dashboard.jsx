@@ -40,9 +40,11 @@ const Dashboard = () => {
           </div>
           <div className="card-body" style={{ height: "700px" }}>
             <div className="row pt-5">
-              <div className="col-sm-5 mx-auto border border-2 p-3  rounded" style={{"background":"#f7dede"}}>
+              <div
+                className="col-sm-5 mx-auto border border-2 p-3  rounded"
+                style={{ background: "#f7dede" }}
+              >
                 <div className="row">
-                 
                   <div className="">
                     <div className="card">
                       <div className="card-header text-center bg-secondary text-light">
@@ -51,16 +53,20 @@ const Dashboard = () => {
                     </div>
                     <div className="card-body border border-1 border-secondary rounded-bottom">
                       <p>
-                        <strong className="text-danger">Name: </strong>{userData.fname} {userData.lname}
+                        <strong className="text-danger">Name: </strong>
+                        {userData.fname} {userData.lname}
                       </p>
                       <p>
-                        <strong className="text-danger">Email: </strong> {userData.email}
+                        <strong className="text-danger">Email: </strong>{" "}
+                        {userData.email}
                       </p>
                       <p>
-                        <strong className="text-danger">Mobile: </strong> {userData.mobile}
+                        <strong className="text-danger">Mobile: </strong>{" "}
+                        {userData.mobile}
                       </p>
                       <p>
-                        <strong className="text-danger">Messenger: </strong> {userData.messenger}
+                        <strong className="text-danger">Messenger: </strong>{" "}
+                        {userData.messenger}
                       </p>
                     </div>
                   </div>
